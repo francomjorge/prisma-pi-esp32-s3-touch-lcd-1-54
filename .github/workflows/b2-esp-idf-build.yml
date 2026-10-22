@@ -1,0 +1,20 @@
+name: B2 ESP-IDF build
+
+on:
+  push:
+    branches: [ b2-audio ]
+  pull_request:
+    branches: [ b1-intro-display-touch-ui ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: espressif/idf:v5.5.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build B2 firmware
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh
+          idf.py set-target esp32s3
+          idf.py build
