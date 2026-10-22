@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "esp_err.h"
+#include "driver/i2c_master.h"
 
 typedef struct {
     bool display_ok;
@@ -31,10 +32,10 @@ typedef enum {
 esp_err_t prisma_bsp_power_hold_init(void);
 esp_err_t prisma_bsp_display_init(void);
 esp_err_t prisma_bsp_i2c_probe(prisma_b0_status_t *status);
+i2c_master_bus_handle_t prisma_bsp_i2c_bus(void);
 esp_err_t prisma_bsp_buttons_init(void);
 void prisma_bsp_draw_b0(const prisma_b0_status_t *status);
 
-/* B1 primitives. The UI layer never handles GPIO or controller registers. */
 esp_err_t prisma_bsp_touch_read(prisma_touch_sample_t *sample);
 bool prisma_bsp_button_pressed(prisma_button_t button);
 void prisma_bsp_backlight_set(bool on);
