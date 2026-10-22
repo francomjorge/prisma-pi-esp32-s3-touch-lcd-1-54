@@ -1,122 +1,90 @@
 # 06 — Continuation / Handoff
 
-Use this document to resume the project in a future conversation without reconstructing design decisions from memory.
+Use this document to resume the project without reconstructing decisions from chat history.
 
-## Repository
+## Repository and active work
 
-`francomjorge/prisma-pi-esp32-s3-touch-lcd-1-54`
+Repository: `francomjorge/prisma-pi-esp32-s3-touch-lcd-1-54`
 
-This is the new clean repository for the redesign. The older repository `francomjorge/prisma-pi-lite-waveshare-esp32-s3-touch-lcd-1-54` may be inspected as a **reference source for previously working code/drivers/behavior**, but its architecture must not be copied blindly.
+Active implementation branch: `b0-hardware-foundation`.
+
+The older repository `francomjorge/prisma-pi-lite-waveshare-esp32-s3-touch-lcd-1-54` is reference material for previously working low-level behavior only; do not copy its architecture blindly.
 
 ## Current phase
 
-**Documentation/specification completed as initial baseline. Firmware implementation has not started.**
+**Implementation has started at B0 — Hardware Foundation.**
 
-At this handoff:
+B0 currently contains:
 
-- code intentionally absent;
-- no firmware binary/build generated;
-- no OTA/recovery work planned initially;
-- implementation should start at Build 0 only after final exact-board pin/bus verification.
+- ESP-IDF project skeleton;
+- target ESP32-S3, 16 MB flash, octal PSRAM baseline;
+- exact board signal constants isolated in `prisma_board.h`;
+- battery power-hold initialization;
+- ST7789 240×240 bring-up;
+- shared I2C bring-up and presence probes for CST816, QMI8658, ES8311 and ES7210;
+- BOOT/PLUS/PWR input initialization;
+- on-device B0 diagnostic screen;
+- serial B0 diagnostics;
+- GitHub Actions ESP-IDF 5.5.1 build workflow;
+- exact pin/bus map in `docs/07-PIN-BUS-MAP.md`.
+
+B0 is **not stable/released yet**. It must compile successfully in CI and then pass the physical acceptance tests on SKU 33869 before merge/tag.
+
+No B1 or later functionality should be added until B0 is physically accepted.
 
 ## Hardware target
 
-Waveshare ESP32-S3-Touch-LCD-1.54, SKU 33869.
+Waveshare ESP32-S3-Touch-LCD-1.54, SKU 33869: ESP32-S3R8, 8 MB octal PSRAM, 16 MB flash, ST7789 240×240, CST816 touch, ES7210 dual-mic ADC, ES8311 output codec, NS4150B amplifier, QMI8658 IMU, TF/microSD, Wi-Fi 2.4 GHz, BLE 5, native USB-C, battery charging/power circuit and BOOT/PLUS/PWR controls.
 
-Known platform baseline:
+## Frozen board baseline
 
-- ESP32-S3R8, dual-core LX7 up to 240 MHz;
-- 8 MB PSRAM;
-- 16 MB flash;
-- 240×240 ST7789 display;
-- CST816-family capacitive touch;
-- dual microphones / ES7210 audio input path;
-- ES8311 output codec;
-- NS4150B amplifier/speaker path;
-- QMI8658 6-axis IMU;
-- TF/microSD;
-- Wi-Fi 2.4 GHz;
-- BLE 5 (not Bluetooth Classic);
-- ESP-NOW over Wi-Fi radio;
-- USB-C/native S3 USB path;
-- battery charge/discharge support;
-- BOOT, PLUS and PWR controls;
-- expansion pads documented for I2C/UART/USB.
+See `07-PIN-BUS-MAP.md`. Key mappings:
 
-## Decisions already made
+- LCD: SCLK38 MOSI39 CS21 DC45 RST40 BL46;
+- shared I2C: SDA42 SCL41;
+- touch: 0x15, RST47, INT48;
+- QMI8658: 0x6B, INT6;
+- ES8311: 0x18;
+- ES7210: 0x40;
+- I2S: MCLK8 BCLK9 WS10 MIC-DIN11 SPK-DOUT12;
+- amplifier: GPIO7;
+- TF SDMMC: CMD15 CLK16 D0=17 D1=18 D2=13 D3=14;
+- BOOT0, PLUS4, PWR5;
+- BAT_ADC1, BAT_EN2, CHG_STAT3;
+- native USB: GPIO19/20.
 
-1. Work in Spanish for project discussion; repository technical documentation may remain concise English unless deliberately changed.
-2. Documentation before code/builds.
-3. Board-specific details live only in `prisma_bsp`.
-4. Local appliance must work independently of Web/PRISMA CORE.
-5. Local UI, Web Admin and remote transports share authoritative service/state rather than duplicate state.
-6. Main local screen includes microphone level; second screen includes quick hardware/audio controls.
-7. Audio initial scope: microphone on/off, input gain if useful, level/peak, PCM; speaker on/off/mute/volume; beep/tone/noise/PCM output.
-8. No initial synthesizer/complex DSP.
-9. IMU is a first-class data source, not merely a demo sensor.
-10. TF is a real storage/file/media subsystem.
-11. Wi-Fi includes scan/connect/reconnect/forget plus PRISMA AP.
-12. ESP-NOW is important for future PRISMA CORE/pedals and includes discovery/capabilities/peers/events/data.
-13. Do not assume raw continuous PCM should travel over ESP-NOW.
-14. BLE is for BLE-compatible discovery/control/data; generic Classic Bluetooth A2DP speakers are not a target.
-15. Web Admin uses one dedicated section per subsystem rather than one mixed page.
-16. OTA/A-B/rollback/recovery removed from initial scope to simplify the platform.
-17. Factory reset remains, but is normal configuration reset and must not erase TF user data by default.
-18. A build is done only after acceptance + regression tests, not when compilation succeeds.
+## Product decisions
+
+1. Board-specific details live only in the BSP.
+2. Appliance works locally without Web/PRISMA CORE.
+3. Local UI, Web Admin and remote transports share authoritative state/services.
+4. Main local screen will include microphone level; second screen quick audio/hardware controls.
+5. Initial audio: mic on/off, gain where useful, level/peak/PCM; speaker on/off/mute/volume; beep/tone/noise/PCM.
+6. No initial synthesizer/complex DSP.
+7. IMU is a first-class data source.
+8. TF is a real storage/file/media subsystem.
+9. Wi-Fi includes scan/connect/reconnect/forget and PRISMA AP.
+10. ESP-NOW provides discovery/capabilities/peers/events/data; continuous raw PCM is not assumed to use ESP-NOW.
+11. BLE is for BLE-compatible discovery/control/data, not Classic A2DP.
+12. Web Admin has a dedicated section per subsystem.
+13. OTA/A-B/rollback/recovery are outside initial scope.
+14. Factory reset resets configuration and does not erase TF user data by default.
+15. A build is complete only after acceptance and regression tests.
 
 ## Build sequence
 
-- B0 Hardware Foundation
-- B1 Intro + Display + Touch + Local UI
-- B2 Audio
-- B3 IMU / Sensors
-- B4 TF / Storage
-- B5 Wi-Fi STA
-- B6 PRISMA AP
-- B7 Web Admin
-- B8 Real-Time Data
-- B9 ESP-NOW + PRISMA Discovery
-- B10 BLE
-- B11 Power + System + Diagnostics
-- B12 Platform Release / integration burn-in
+B0 Hardware Foundation → B1 Intro/Display/Touch/UI → B2 Audio → B3 IMU/Sensors → B4 TF/Storage → B5 Wi-Fi STA → B6 PRISMA AP → B7 Web Admin → B8 Real-Time Data → B9 ESP-NOW/Discovery → B10 BLE → B11 Power/System/Diagnostics → B12 integrated platform release.
 
-See `04-BUILD-PLAN.md` and `05-ACCEPTANCE-TESTS.md` for exact scope.
+## Immediate next action
 
-## Mandatory work before writing B0 drivers
+1. Let CI compile branch `b0-hardware-foundation`.
+2. Fix compile issues only; do not expand scope.
+3. Produce a flashable B0 binary.
+4. Flash exact SKU 33869.
+5. Run B0 physical acceptance: repeated boot, display orientation/colors, touch presence, PSRAM/flash/NVS, I2C device presence, button electrical behavior and stability.
+6. Record results.
+7. Only after all mandatory B0 tests pass, merge/tag B0 and start B1.
 
-Perform one final exact-board hardware verification using official Waveshare schematic/product/example material and, where required, the physical board. Freeze/document:
+## Resume order for a future chat
 
-- TF/microSD bus and pins;
-- QMI8658 bus/address/interrupt routing;
-- ES7210/ES8311 I2C + I2S mapping;
-- NS4150B enable polarity;
-- BOOT/PLUS/PWR GPIO/electrical semantics;
-- battery/power-hold/charge/telemetry behavior;
-- USB routing/modes practical on this PCB;
-- expansion pads and genuinely free GPIOs;
-- shared buses/resources and conflicts.
-
-Do not turn a generic ESP32-S3 capability into a board feature without verifying that SKU 33869 routes/supports it.
-
-## Recommended first implementation action
-
-After the verification above, create only the minimal ESP-IDF project skeleton and `prisma_bsp` needed for **B0 Hardware Foundation**. Do not pre-create all later services with placeholder code. Implement incrementally according to the build plan and tag only tested stable milestones.
-
-## Previous working implementation reference
-
-The older repository/history had working or partially working material including LCD/touch, glitch intro, SPIFFS/assets, AP/web server and advanced Wi-Fi work. Recover useful low-level knowledge from it only after comparing it with this new specification and exact-board hardware mapping.
-
-## Resume instruction for a future chat
-
-Read, in order:
-
-1. `README.md`
-2. `docs/00-PROJECT-SCOPE.md`
-3. `docs/01-HARDWARE-INVENTORY.md`
-4. `docs/02-ARCHITECTURE.md`
-5. `docs/03-FUNCTIONAL-SPECIFICATION.md`
-6. `docs/04-BUILD-PLAN.md`
-7. `docs/05-ACCEPTANCE-TESTS.md`
-8. this file
-
-Then inspect the current repository state/commits before making changes. The next intended phase is **implementation beginning with B0**, after the remaining hardware-map verification is completed.
+Read `README.md`, docs 00 through 07, inspect the active branch and latest CI status, then continue from the first incomplete B0 acceptance item. Never assume a test passed merely because the firmware compiled.
