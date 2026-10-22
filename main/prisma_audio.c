@@ -49,7 +49,7 @@ esp_err_t prisma_audio_init(void)
     es8311_codec_cfg_t out_codec_cfg={.codec_mode=ESP_CODEC_DEV_WORK_MODE_DAC,.ctrl_if=out_ctrl,.gpio_if=gpio_if,.pa_pin=PRISMA_PA_CTRL,.use_mclk=true,.hw_gain={.pa_voltage=5.0,.codec_dac_voltage=3.3}};const audio_codec_if_t *out_codec=es8311_codec_new(&out_codec_cfg);if(!out_codec)return ESP_FAIL;
     esp_codec_dev_cfg_t dev_cfg={.dev_type=ESP_CODEC_DEV_TYPE_OUT,.codec_if=out_codec,.data_if=data_if};s_out=esp_codec_dev_new(&dev_cfg);if(!s_out)return ESP_FAIL;
     ctrl_cfg.addr=ES7210_CODEC_DEFAULT_ADDR;const audio_codec_ctrl_if_t *in_ctrl=audio_codec_new_i2c_ctrl(&ctrl_cfg);if(!in_ctrl)return ESP_FAIL;
-    es7210_codec_cfg_t in_codec_cfg={.ctrl_if=in_ctrl,.mic_selected=ES7120_SEL_MIC1|ES7120_SEL_MIC2|ES7120_SEL_MIC3|ES7120_SEL_MIC4};const audio_codec_if_t *in_codec=es7210_codec_new(&in_codec_cfg);if(!in_codec)return ESP_FAIL;
+    es7210_codec_cfg_t in_codec_cfg={.ctrl_if=in_ctrl,.mic_selected=ES7210_SEL_MIC1|ES7210_SEL_MIC2|ES7210_SEL_MIC3|ES7210_SEL_MIC4};const audio_codec_if_t *in_codec=es7210_codec_new(&in_codec_cfg);if(!in_codec)return ESP_FAIL;
     dev_cfg.dev_type=ESP_CODEC_DEV_TYPE_IN;dev_cfg.codec_if=in_codec;s_in=esp_codec_dev_new(&dev_cfg);if(!s_in)return ESP_FAIL;
     esp_codec_dev_sample_info_t fs={.bits_per_sample=16,.channel=1,.channel_mask=0,.sample_rate=SAMPLE_RATE,.mclk_multiple=0};if(esp_codec_dev_open(s_out,&fs)!=ESP_CODEC_DEV_OK)return ESP_FAIL;
     fs.channel=4;fs.channel_mask=ESP_CODEC_DEV_MAKE_CHANNEL_MASK(0);if(esp_codec_dev_open(s_in,&fs)!=ESP_CODEC_DEV_OK)return ESP_FAIL;
