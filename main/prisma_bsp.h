@@ -30,6 +30,7 @@ typedef enum {
 } prisma_button_t;
 
 esp_err_t prisma_bsp_power_hold_init(void);
+esp_err_t prisma_bsp_power_off(void);
 esp_err_t prisma_bsp_display_init(void);
 esp_err_t prisma_bsp_i2c_probe(prisma_b0_status_t *status);
 i2c_master_bus_handle_t prisma_bsp_i2c_bus(void);
