@@ -1,0 +1,20 @@
+name: B6 ESP-IDF build
+
+on:
+  push:
+    branches: [ b6-prisma-ap ]
+  pull_request:
+    branches: [ b5-wifi-sta ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: espressif/idf:v5.5.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build B6 firmware
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh
+          idf.py set-target esp32s3
+          idf.py build
