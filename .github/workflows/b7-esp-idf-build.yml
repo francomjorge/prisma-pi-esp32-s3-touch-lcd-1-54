@@ -2,7 +2,7 @@ name: B7 ESP-IDF build
 
 on:
   push:
-    branches: [ b7-web-admin ]
+    branches: [ b7-web-admin, b7-checkpoint-fix1 ]
   pull_request:
     branches: [ b6-prisma-ap ]
 
