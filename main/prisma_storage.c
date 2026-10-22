@@ -3,10 +3,10 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/statvfs.h>
 #include "esp_log.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
+#include "ff.h"
 
 static const char *TAG = "PRISMA_STORAGE";
 static const char *MOUNT = "/sdcard";
@@ -15,10 +15,13 @@ static prisma_storage_state_t s_state;
 
 static void refresh_space(void)
 {
-    struct statvfs vfs;
-    if (statvfs(MOUNT, &vfs) == 0) {
-        s_state.capacity_bytes = (uint64_t)vfs.f_blocks * vfs.f_frsize;
-        s_state.free_bytes = (uint64_t)vfs.f_bavail * vfs.f_frsize;
+    FATFS *fs = NULL;
+    DWORD free_clusters = 0;
+    if (f_getfree("0:", &free_clusters, &fs) == FR_OK && fs != NULL) {
+        uint64_t sector_size = s_state.sector_size ? s_state.sector_size : 512U;
+        uint64_t cluster_bytes = (uint64_t)fs->csize * sector_size;
+        s_state.capacity_bytes = (uint64_t)(fs->n_fatent - 2U) * cluster_bytes;
+        s_state.free_bytes = (uint64_t)free_clusters * cluster_bytes;
     }
 }
 
