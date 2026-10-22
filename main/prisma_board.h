@@ -3,7 +3,7 @@
 #include "driver/gpio.h"
 
 /* Waveshare ESP32-S3-Touch-LCD-1.54 / SKU 33869.
- * Keep board-specific signals in this BSP boundary only.
+ * Board-specific signals stay inside the BSP boundary.
  */
 
 #define PRISMA_LCD_WIDTH          240
@@ -21,7 +21,7 @@
 #define PRISMA_TOUCH_INT          GPIO_NUM_48
 #define PRISMA_TOUCH_RST          GPIO_NUM_47
 #define PRISMA_IMU_ADDR           0x6B
-#define PRISMA_IMU_INT            GPIO_NUM_5
+#define PRISMA_IMU_INT            GPIO_NUM_6
 #define PRISMA_ES8311_ADDR        0x18
 #define PRISMA_ES7210_ADDR        0x40
 
@@ -41,6 +41,7 @@
 
 #define PRISMA_KEY_BOOT           GPIO_NUM_0
 #define PRISMA_KEY_PLUS           GPIO_NUM_4
+#define PRISMA_KEY_PWR            GPIO_NUM_5
 #define PRISMA_BAT_ADC            GPIO_NUM_1
 #define PRISMA_BAT_EN             GPIO_NUM_2
 #define PRISMA_CHG_STAT           GPIO_NUM_3
