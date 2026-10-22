@@ -18,3 +18,19 @@ jobs:
           . $IDF_PATH/export.sh
           idf.py set-target esp32s3
           idf.py build
+          python -m esptool --chip esp32s3 merge_bin --flash_mode dio --flash_freq 80m --flash_size 16MB -o build/prisma-pi-b7-factory.bin 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/prisma_pi_esp32s3_touch_lcd_154.bin
+      - name: Stage B7 checkpoint
+        shell: bash
+        run: |
+          mkdir -p artifact
+          cp build/prisma-pi-b7-factory.bin artifact/
+          cp build/prisma_pi_esp32s3_touch_lcd_154.bin artifact/prisma-pi-b7-app.bin
+          cp build/bootloader/bootloader.bin artifact/
+          cp build/partition_table/partition-table.bin artifact/
+          cp build/flash_args artifact/
+      - name: Upload B7 checkpoint
+        uses: actions/upload-artifact@v4
+        with:
+          name: prisma-pi-b7-checkpoint
+          path: artifact/
+          retention-days: 30
